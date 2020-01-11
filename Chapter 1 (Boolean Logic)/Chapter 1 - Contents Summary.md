@@ -1,4 +1,4 @@
-##### <Chapter 1> Boolean Logic -  Contents Summary
+## Chapter 1 - Contents Summary (20.01.04)
 
 
 
