@@ -17,17 +17,9 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
-    Not16(in=in, out=notIn);
-    And16(a=in, b=notIn, out=andOut);
-    Register(in=andOut, load=reset, out=resetOut); //reset
-
-    Inc16(in=another, out=inc16Out);
-    Register(in=inc16Out, load=inc, out=another, out=incOut); //inc
-
-    Register(in=in, load=load, out=loadOut); //load
-
-    Mux16(a=incOut, b=loadOut, sel=load, out=out1);
-
-    Mux16(a=out1, b=resetOut, sel=reset, out=out);
-
+    Inc16(in=branch, out=inPlus);
+    Mux16(a=branch, b=inPlus, sel=inc, out=incOut);
+    Mux16(a=incOut, b=in, sel=load, out=loadOut);
+    Mux16(a=loadOut, b=false, sel=reset, out=resetOut);
+    Register(in=resetOut, load=true, out=branch, out=out);
 }
