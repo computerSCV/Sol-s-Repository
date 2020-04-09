@@ -38,60 +38,6 @@ CHIP CPU {
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
-
-//     PARTS:
-//     // Put your code here:
-
-//     /* Decode */
-//     And(a=instruction[15], b=true, out=decodeResult); //instruction의 15번째 비트가 output이 됨 -> 0 또는 1(A명령어인지 C명령어인지 구분)
-//     Not(in=decodeResult, out=decodeResultNot); // A명령어 = 1, C명령어 = 0 으로 뒤집음(FirstMux의 sel비트로 만들기 위함)
-//     //END
-
-//     /* First Mux */
-//     Mux16(a=ALUoutput, b=instruction, sel=decodeResultNot, out=firstMuxResult);
-//     //END
-
-//     /* A Register */
-//     ARegister(in=firstMuxResult, load=decodeResultNot, out=AregisterResult); 
-//     //decodeResultNot이 1이면(A명령어면) load비트가 1이므로 A레지스터에 주소(0~15비트) 저장, 
-//     //decodeResultNot이 0이면(C명령어면) load비트가 0이므로 A레지스터는 그대로 이전 주소값을 가지고 있음.
-//     //END
-
-//     /* Second Mux */
-//     And(a=instruction[12], b=decodeResult, out=secondMuxC); 
-//     // decodeResult가 1이면(C명령어이면) output = instruction[12], decodeResult가 0이면(A명령어이면) output = 0
-//     Mux16(a=AregisterResult, b=inM, sel=secondMuxC, out=secondMuxResult);
-//     //END
-
-//     /* ALU */
-//     ALU(x=DregisterResult, y=secondMuxResult, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], 
-//     out=ALUoutput, out=outM, zr=zr, ng=ng);
-
-//     /* D register */
-//     And(a=instruction[15], b=instruction[4], out=DregisterLoadBit);
-//     DRegister(in=ALUoutput, load=DregisterLoadBit, out=DregisterResult);
-
-//     /* PC */
-//     And(a=instruction[2], b=ng, out=j1Out); //ng 
-//     Not(in=ng, out=positive); //not ng
-//     And(a=instruction[1], b=zr, out=j2Out); //zr
-//     And(a=instruction[0], b=positive, out=j3Out);
-//     Or(a=j1Out, b=j2Out, out=or1);
-//     Or(a=or1, b=j3Out, out=or2);
-//     And(a=instruction[15], b=or2, out=pcLoad);
-//     PC(in=AregisterResult, load=pcLoad, inc=true, reset=reset, out=pcOut, out[0..14] = pc);
-//     //END
-
-//     /* addressM 으로 보낼 A레지스터의 주소값 */
-//     And16(a=AregisterResult, b=true, out = andandOUt, out[0..14]=addressM);
-//     //END
-
-//     /* Write M */
-//     And(a=instruction[3], b=instruction[15], out=writeM);
-//     //END
-// }
-
-
     /* 내꺼 */
     PARTS:
     // Put your code here:
