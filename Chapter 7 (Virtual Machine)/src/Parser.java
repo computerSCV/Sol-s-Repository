@@ -3,12 +3,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Parser {
-    String[] lines;
+    ArrayList<String> lines;
     int linePointer;
     String currentLine;
 
-    public Parser(String inputFile) {
-        lines = getLines(inputFile);
+    public Parser(String fileName) {
+        lines = getLines(fileName);
+        currentLine = lines.get(linePointer); // at this line, linePointer is 0
     }
 
     public String arg1() {
@@ -17,10 +18,10 @@ public class Parser {
             return "";
         }
         if (commandTypeResult.equals("C_ARITHMETIC")) {
-            return currentLine;
+            return currentLine.trim();
         }
         String[] args = currentLine.split(" ");
-        return args[1];
+        return args[1].trim();
     }
 
     public int arg2() {
@@ -28,14 +29,14 @@ public class Parser {
         if (commandTypeResult.equals("C_PUSH") || commandTypeResult.equals("C_POP") || commandTypeResult.equals("C_FUNCTION")
                 || commandTypeResult.equals("C_CALL")) {
             String[] args = currentLine.split(" ");
-            return Integer.parseInt(args[2]);
+            return Integer.parseInt(args[2].trim());
         }
         return 0;
     }
 
     public String commandType() {
         String[] splited = currentLine.split(" ");
-        String command = splited[0];
+        String command = splited[0].trim();
         if (command.equals("push")) {
             return "C_PUSH";
         }
@@ -65,31 +66,29 @@ public class Parser {
 
     public void advance() {
         linePointer++;
-        currentLine = lines[linePointer];
+        currentLine = lines.get(linePointer);
     }
 
     public boolean hasMoreCommands() {
-        if (linePointer == lines.length - 1) {
+        if (linePointer == lines.size() - 1) {
             return false;
         }
         return true;
     }
 
-    private String[] getLines(String inputFile) {
-        String[] resultLines;
+    private ArrayList<String> getLines(String inputFile) {
         FileReader fileReader = null;
         Scanner scanner = null;
         linePointer = 0;
         ArrayList<String> lineList = new ArrayList<>();
-
         try {
             fileReader = new FileReader(inputFile);
             scanner = new Scanner(fileReader);
-            String currentLine = scanner.nextLine();
-            while (true) { //지환이한테 true break 물어보기
+            String currentLine;
+            while (scanner.hasNextLine()) { //지환이한테 true break 물어보기
+                currentLine = scanner.nextLine();
                 currentLine.trim();
-                if (currentLine.isBlank() || currentLine.charAt(0) == '/') {
-                    currentLine = scanner.nextLine();
+                if (currentLine.length() <= 0 || currentLine.charAt(0) == '/') {
                     continue;
                 }
                 char[] charList = currentLine.toCharArray();
@@ -97,29 +96,18 @@ public class Parser {
                 for (char each : charList) {
                     if (each != '/') {
                         real += each;
+                    } else {
+                        break;
                     }
                 }
                 currentLine = real;
-                lineList.add(currentLine);
-                if (!scanner.hasNextLine()) {
-                    break;
-                }
-                currentLine = scanner.nextLine();
+                lineList.add(currentLine.trim());
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             scanner.close();
         }
-        resultLines = new String[lineList.size()];
-        for (int i = 0; i < lineList.size(); i++) {
-            resultLines[i] = lineList.get(i);
-        }
-        currentLine = resultLines[linePointer];
-        return resultLines;
+        return lineList;
     }
-
-
 }
-
-

@@ -3,8 +3,10 @@ import java.io.FileWriter;
 public class CodeWriter {
     FileWriter fileWriter;
     int index = 0;
+    int labelIndex = 0;
+    String fileName;
 
-    public void setFimeName(String filename) {
+    public void setFileName(String filename) {
         try {
             fileWriter = new FileWriter(filename, true);
         } catch (Exception e) {
@@ -106,7 +108,7 @@ public class CodeWriter {
                         "(CONTINUE" + index + ")\n";
                 break;
             case "lt": // -1(true) if x < y else 0 (false)
-                result = boolCommandFirstSegment +
+                result = "//lt 시작 \n" + boolCommandFirstSegment +
                         "@LT" + index + "\n" +
                         "D;JLT\n" +
                         "@NOTLT" + index + "\n" +
@@ -178,7 +180,8 @@ public class CodeWriter {
                         "D=M\n" +
                         push;
             } else if (segment.equals("static")) { //static 일 때
-                result += "@" + (index + 16) + "\n" +
+                result += "//static 시작\n";
+                result += "@" + fileName + "." + index + "\n" +
                         "D=M\n" +
                         push;
             } else if (segment.equals("pointer")) { //pointer 일 때
@@ -190,7 +193,7 @@ public class CodeWriter {
                             "D=M\n";
                 }
                 result += push;
-            } else { // arg, lol, this, that 일 때
+            } else { // arg, lcl, this, that 일 때
                 result = "@" + parsedSegment + "\n" +
                         "A=M\n";
                 for (int i = 0; i < index; i++) {
@@ -206,15 +209,12 @@ public class CodeWriter {
                     "A=M\n" +
                     "D=M\n";
             if (segment.equals("temp")) { //temp일때
-                result += "@5\n" +
-                        "M=A\n";
+                result += pop;
+                result += "@5\n";
                 for (int i = 0; i < index; i++) {
-                    result += "M=M+1\n";
+                    result += "A=A+1\n";
                 }
-                result += "A=M\n" +
-                        "M=D\n" +
-                        "@SP\n" +
-                        "M=M-1\n";
+                result += "M=D\n";
             } else if (segment.equals("pointer")) { //pointer일 때
                 result += pop;
                 if (index == 0) {
@@ -226,7 +226,7 @@ public class CodeWriter {
                 }
             } else if (segment.equals("static")) { //static 일 때
                 result += pop +
-                        "@" + (index + 16) + "\n" +
+                        "@" + fileName + "." + index + "\n" +
                         "M=D\n";
             } else { // arg, lol, this, that 일 때
                 result += pop +
@@ -245,7 +245,237 @@ public class CodeWriter {
                 Exception e) {
             e.printStackTrace();
         }
+    }
 
+    /* 여기서부터 8장 */
+
+    public void writerInit() {
+        String result = "";
+        result += "@256\n"
+                + "D=A\n"
+                + "@SP\n"
+                + "M=D\n"; // SP=256 으로 initialize
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+        writeCall("Sys.init", 0);
+    }
+
+    public void writeLabel(String label) {
+        String result = "";
+        String labelName = label.split(" ")[1].trim();
+        result += "(" + labelName + ")\n";
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeGoto(String label) {
+        String result = "//writeGoto 시작 \n";
+        String labelName = label.split(" ")[1].trim();
+        result += "@" + labelName + "\n"
+                + "0;JMP\n";
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeIf(String label) {
+        String result = "//writeIf 시작\n";
+        String labelName = label.split(" ")[1].trim();
+        result += "@SP\n" +
+                "M=M-1\n" +
+                "A=M\n" +
+                "D=M\n" +
+                "@" + labelName + "\n" // -1(true)면 점프
+                + "D;JLT\n";
+//                + "@" + labelName + "_END" + "\n"
+//                + "0;JMP\n"
+//                + "(" + labelName + "_END)\n";
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeCall(String functionName, int numArgs) {
+        String result = "//writeCall 시작" + functionName + "\n";
+        String returnAddress = functionName + "$" + labelIndex;
+        String commonPart = "@SP\n"
+                + "A=M\n"
+                + "M=D\n"
+                + "@SP\n"
+                + "M=M+1\n";
+        /* push return-address, LCL, ARG, THIS, THAT */
+        result += "@"
+                + returnAddress + "\n"
+                + "D=A\n"
+                + commonPart
+                + "@LCL\n"
+                + "D=M\n"
+                + commonPart
+                + "@ARG\n"
+                + "D=M\n"
+                + commonPart
+                + "@THIS\n"
+                + "D=M\n"
+                + commonPart
+                + "@THAT\n"
+                + "D=M\n"
+                + commonPart;
+        /* ARG = SP - n - 5 */
+        result += "@SP\n"
+                + "D=M\n";
+        for (int i = 0; i < numArgs + 5; i++) {
+            result += "D=D-1\n";
+        }
+        result += "@ARG\n"
+                + "M=D\n";
+        /* LCL = SP */
+        result += "@SP\n"
+                + "D=M\n"
+                + "@LCL\n"
+                + "M=D\n";
+        /* goto f */
+        result += "@" + functionName + "\n"
+                + "0;JMP\n";
+        /* (Return-address) */
+        result += "(" + returnAddress + ")\n";
+
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
+        labelIndex++;
+    }
+
+    public void writeFunction(String functionName, int numLocals) {
+        String result = "//writeFunction 시작\n"
+                + "(" + functionName + ")\n";
+        for (int i = 0; i < numLocals; i++) {
+            result += "@LCL\n"
+                    + "D=M\n";
+            for (int j = 0; j < i; j++) {
+                result += "D=D+1\n";
+            }
+            result += "@SP\n"
+                    + "M=D\n"
+                    + "@SP\n"
+                    + "A=M\n"
+                    + "M=0\n"
+                    + "@SP\n"
+                    + "M=M+1\n";
+        }
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeReturn() {
+        String result = "";
+        // FRAME = LCL
+        result += "@LCL\n"
+                + "D=M\n"
+                + "@R13\n"
+                + "M=D\n"
+                + "D=M\n";
+        //RET = *(FRAME-5)
+        for (int i = 0; i < 5; i++) {
+            result += "D=D-1\n";
+        }
+        result += "A=D\n"
+                + "D=M\n"
+                + "@R14\n"
+                + "M=D\n";
+
+        /*           *ARG = pop()           */
+        result += "@SP\n"
+                + "M=M-1\n"
+                + "A=M\n"
+                + "D=M\n"
+                + "@ARG\n"
+                + "A=M\n"
+                + "M=D\n"
+                // SP = ARG + 1
+                + "@ARG\n"
+                + "D=M\n"
+                + "@SP\n"
+                + "M=D+1\n";
+
+        /*          THAT = *(FRAME-1)        */
+        result += "@R13\n"
+                + "D=M\n"
+                + "A=D-1\n"
+                + "D=M\n"
+                + "@THAT\n"
+                + "M=D\n";
+
+        /*         THIS = *(FRAME-2)        */
+        result += "@R13\n"
+                + "D=M\n";
+        for (int i = 0; i < 2; i++) {
+            result += "D=D-1\n";
+        }
+        result += "A=D\n"
+                + "D=M\n"
+                + "@THIS\n"
+                + "M=D\n";
+
+        /*          ARG = *(FRAME-3)         */
+        result += "@R13\n"
+                + "D=M\n";
+        for (int i = 0; i < 3; i++) {
+            result += "D=D-1\n";
+        }
+        result += "A=D\n"
+                + "D=M\n"
+                + "@ARG\n"
+                + "M=D\n";
+
+        /*         LCL = *(FRAME-4)          */
+        result += "@R13\n"
+                + "D=M\n";
+        for (int i = 0; i < 4; i++) {
+            result += "D=D-1\n";
+        }
+        result += "A=D\n"
+                + "D=M\n"
+                + "@LCL\n"
+                + "M=D\n";
+
+        /*         goto RET            */
+        result += "@R14\n"
+                + "A=M\n"
+                + "0;JMP\n";
+
+        try {
+            fileWriter.append(result);
+            fileWriter.flush();
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void Close() {
