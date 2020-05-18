@@ -3,12 +3,11 @@ import java.util.Stack;
 
 public class VirtualMachine {
     public static void main(String[] args) {
-        /* 기존 parser 코드로 하되(파일 하나씩 읽는), 이 main 자체를 directory로 잡아서 file을 하나씩 while 돌리면 됨. */
-
-        String directoryPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\08\\FunctionCalls\\StaticsTest";
+        String directoryPath = args[0];
+        String fileNameInput = args[1];
         File[] fileList = new File(directoryPath).listFiles();
         CodeWriter codeWriter = new CodeWriter();
-        codeWriter.setFileName("P:\\The Elements of Computing Systems\\nand2tetris\\projects\\08\\FunctionCalls\\StaticsTest\\StaticsTest.asm");
+        codeWriter.setFileName(fileNameInput);
 
 
         Stack<File> stack = new Stack<>();
@@ -35,8 +34,6 @@ public class VirtualMachine {
                 }
                 Parser parser = new Parser(filePath);
                 codeWriter.fileName = fileName;
-                /* 한 줄씩 읽기 시작 */
-                System.out.println("파일 : " + fileName);
                 while (true) {
                     String line = parser.currentLine.trim();
                     System.out.println(line);
