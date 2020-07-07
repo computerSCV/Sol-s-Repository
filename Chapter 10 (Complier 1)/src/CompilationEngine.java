@@ -296,7 +296,6 @@ public class CompilationEngine {
             System.out.println("compileTerm으로 ----->");
             compileTerm(); // term
             while (opSet.contains(nextToken)) {
-                System.out.println("해당");
                 fileWriter.append(makeTerminalLine()); // "op"
                 compileTerm(); // term
             }
@@ -338,7 +337,6 @@ public class CompilationEngine {
             } else {
                 fileWriter.append(makeTerminalLine());
             }
-            System.out.println("끝");
         } catch (Exception e) {
             e.printStackTrace();
         }
