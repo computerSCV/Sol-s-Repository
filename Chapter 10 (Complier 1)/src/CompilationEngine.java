@@ -51,7 +51,7 @@ public class CompilationEngine {
                 break;
         }
         nextToken = jackTokeninzer.nextToken;
-        /* '<, >, " , &' 네 가지 특수기호는 각각 바꿔서 출력 */
+        /* "<, >, " , &" 네 가지 특수기호는 각각 바꿔서 출력 */
         switch (terminal) {
             case "<":
                 terminal = "&lt";
@@ -72,18 +72,18 @@ public class CompilationEngine {
 
     public void compileClass() {
         System.out.println("<-- 컴파일 클래스 루틴 -->");
-        /* 'class' className '{' classVarDec* subroutineDec* '}' */
+        /* "class" className "{" classVarDec* subroutineDec* "}" */
         try {
             fileWriter.append(makeTerminalLine()); // class
             fileWriter.append(makeTerminalLine()); // className -> identifier
-            fileWriter.append(makeTerminalLine()); // '{'
+            fileWriter.append(makeTerminalLine()); // "{"
             while (nextToken.equals("field") || nextToken.equals("static")) {
                 compileClassVarDec();
             }
             while (nextToken.equals("constructor") || nextToken.equals("function") || nextToken.equals("method")) {
                 compileSubroutine();
             }
-            fileWriter.append(makeTerminalLine()); // '}'
+            fileWriter.append(makeTerminalLine()); // "}"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,38 +91,38 @@ public class CompilationEngine {
 
     public void compileClassVarDec() {
         System.out.println("<-- compileClassVarDec() -->");
-        /* ('static' | 'field') type varName (',' varName)* ';' */
+        /* ("static" | "field") type varName ("," varName)* ";" */
         try {
-            fileWriter.append(makeTerminalLine()); // ('static' | 'field')
-            fileWriter.append(makeTerminalLine()); // type - 'int' | 'char' | 'boolean' | className
+            fileWriter.append(makeTerminalLine()); // ("static" | "field")
+            fileWriter.append(makeTerminalLine()); // type - "int" | "char" | "boolean" | className
             fileWriter.append(makeTerminalLine()); // varName (identifier)
             while (nextToken.equals(",")) {
-                fileWriter.append(makeTerminalLine()); // ','
+                fileWriter.append(makeTerminalLine()); // ","
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
             }
-            fileWriter.append(makeTerminalLine()); // ';'
+            fileWriter.append(makeTerminalLine()); // ";"
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void compileSubroutine() {
-        /* ('constructor' | 'function' | 'method') ('void' | type) subroutineName '(' parameterList ')' subroutineBody */
+        /* ("constructor" | "function" | "method") ("void" | type) subroutineName "(" parameterList ")" subroutineBody */
         System.out.println("<-- compileSubroutine() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // ('constructor' | 'function' | 'method')
-            fileWriter.append(makeTerminalLine()); // 'void' || type - 'int' | 'char' | 'boolean' | className
+            fileWriter.append(makeTerminalLine()); // ("constructor" | "function" | "method")
+            fileWriter.append(makeTerminalLine()); // "void" || type - "int" | "char" | "boolean" | className
             fileWriter.append(makeTerminalLine()); // subroutineName (identifier)
-            fileWriter.append(makeTerminalLine()); // '('
+            fileWriter.append(makeTerminalLine()); // "("
             compileParameterList();
-            fileWriter.append(makeTerminalLine()); // ')'
+            fileWriter.append(makeTerminalLine()); // ")"
             /* subroutineBody */
-            fileWriter.append(makeTerminalLine()); // '{'
+            fileWriter.append(makeTerminalLine()); // "{"
             while (nextToken.equals("var")) {
                 compileVarDec();
             }
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // '}'
+            fileWriter.append(makeTerminalLine()); // "}"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,7 +135,8 @@ public class CompilationEngine {
                 fileWriter.append(makeTerminalLine()); // type
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
                 while (nextToken.equals(",")) {
-                    fileWriter.append(makeTerminalLine()); // ','
+                    fileWriter.append(makeTerminalLine()); // ","
+                    fileWriter.append(makeTerminalLine()); // type
                     fileWriter.append(makeTerminalLine()); // varName (identifier)
                 }
             }
@@ -147,14 +148,14 @@ public class CompilationEngine {
     public void compileVarDec() {
         System.out.println("<-- compileVarDec() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'var'
+            fileWriter.append(makeTerminalLine()); // "var"
             fileWriter.append(makeTerminalLine()); // type
             fileWriter.append(makeTerminalLine()); // varName (identifier)
             while (nextToken.equals(",")) {
-                fileWriter.append(makeTerminalLine()); // ','
+                fileWriter.append(makeTerminalLine()); // ","
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
             }
-            fileWriter.append(makeTerminalLine()); // ';'
+            fileWriter.append(makeTerminalLine()); // ";"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -211,9 +212,9 @@ public class CompilationEngine {
     public void compileDo() {
         System.out.println("<-- compileDo() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'do'
+            fileWriter.append(makeTerminalLine()); // "do"
             subroutineCall();
-            fileWriter.append(makeTerminalLine()); // ';'
+            fileWriter.append(makeTerminalLine()); // ";"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,16 +223,16 @@ public class CompilationEngine {
     public void compileLet() {
         System.out.println("<-- compileLet() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'let'
-            fileWriter.append(makeTerminalLine()); // 'varName'
+            fileWriter.append(makeTerminalLine()); // "let"
+            fileWriter.append(makeTerminalLine()); // varName
             if (nextToken.equals("[")) {
-                fileWriter.append(makeTerminalLine()); // '['
+                fileWriter.append(makeTerminalLine()); // "["
                 compileExpression();
-                fileWriter.append(makeTerminalLine()); // ']'
+                fileWriter.append(makeTerminalLine()); // "]"
             }
-            fileWriter.append(makeTerminalLine()); // '='
+            fileWriter.append(makeTerminalLine()); // "="
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ';'
+            fileWriter.append(makeTerminalLine()); // ";"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -240,13 +241,13 @@ public class CompilationEngine {
     public void compileWhile() {
         System.out.println("<-- compileWhile() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'while'
-            fileWriter.append(makeTerminalLine()); // '('
+            fileWriter.append(makeTerminalLine()); // "while"
+            fileWriter.append(makeTerminalLine()); // "("
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ')'
-            fileWriter.append(makeTerminalLine()); // '{'
+            fileWriter.append(makeTerminalLine()); // ")"
+            fileWriter.append(makeTerminalLine()); // "{"
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // '}'
+            fileWriter.append(makeTerminalLine()); // "}"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -255,11 +256,11 @@ public class CompilationEngine {
     public void compileReturn() {
         System.out.println("<-- compileReturn() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'return'
+            fileWriter.append(makeTerminalLine()); // "return"
             if (!nextToken.equals(";")) {
                 compileExpression();
             }
-            fileWriter.append(makeTerminalLine()); // ';'
+            fileWriter.append(makeTerminalLine()); // ";"
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -268,18 +269,18 @@ public class CompilationEngine {
     public void compileIf() {
         System.out.println("<-- compileIf() -->");
         try {
-            fileWriter.append(makeTerminalLine()); // 'if'
-            fileWriter.append(makeTerminalLine()); // '('
+            fileWriter.append(makeTerminalLine()); // "if"
+            fileWriter.append(makeTerminalLine()); // "("
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ')'
-            fileWriter.append(makeTerminalLine()); // '{'
+            fileWriter.append(makeTerminalLine()); // ")"
+            fileWriter.append(makeTerminalLine()); // "{"
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // '}'
+            fileWriter.append(makeTerminalLine()); // "}"
             if (nextToken.equals("else")) {
-                fileWriter.append(makeTerminalLine()); // 'else'
-                fileWriter.append(makeTerminalLine()); // '{'
+                fileWriter.append(makeTerminalLine()); // "else"
+                fileWriter.append(makeTerminalLine()); // "{"
                 compileStatements();
-                fileWriter.append(makeTerminalLine()); // '}'
+                fileWriter.append(makeTerminalLine()); // "}"
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -288,14 +289,15 @@ public class CompilationEngine {
 
     public void compileExpression() {
         System.out.println("<-- compileExpression() -->");
-        Set<Character> opSet = new HashSet<>();
-        Character[] opArr = {'+', '-', '*', '/', '&', '|', '<', '>', '=', '-', '~'};
+        Set<String> opSet = new HashSet<>();
+        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
         opSet.addAll(Arrays.asList(opArr));
         try {
             System.out.println("compileTerm으로 ----->");
             compileTerm(); // term
             while (opSet.contains(nextToken)) {
-                fileWriter.append(makeTerminalLine()); // 'op'
+                System.out.println("해당");
+                fileWriter.append(makeTerminalLine()); // "op"
                 compileTerm(); // term
             }
         } catch (Exception e) {
@@ -311,7 +313,7 @@ public class CompilationEngine {
             jackTokeninzer.pointerBackward();
             if (tokenType.equals("identifier")) {
                 switch (nextToken) {
-                    case "[": // varName '[' expression ']'
+                    case "[": // varName "[" expression "]"
                         fileWriter.append(makeTerminalLine());
                         fileWriter.append(makeTerminalLine());
                         compileExpression();
@@ -320,7 +322,7 @@ public class CompilationEngine {
                     case ".": // subroutineCall
                         subroutineCall();
                         break;
-                    case "(": // '(' expression ')'
+                    case "(": // "(" expression ")"
                         fileWriter.append(makeTerminalLine());
                         compileExpression();
                         fileWriter.append(makeTerminalLine());
@@ -336,6 +338,7 @@ public class CompilationEngine {
             } else {
                 fileWriter.append(makeTerminalLine());
             }
+            System.out.println("끝");
         } catch (Exception e) {
             e.printStackTrace();
         }

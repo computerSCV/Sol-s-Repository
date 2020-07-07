@@ -63,6 +63,9 @@ public class JackTokeninzer {
             }
         }
         getToken();
+//        for (String eachToken : tokens) {
+//            System.out.println(eachToken);
+//        }
     }
 
     private void getToken() { // customized method
