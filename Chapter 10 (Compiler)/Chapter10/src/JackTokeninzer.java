@@ -83,7 +83,7 @@ public class JackTokeninzer {
                         addToken();
                     }
                     if (target != ' ') {
-                        token = stringBuilder.toString();
+                        token = "" + target;
                         addToken();
                     }
                     stringBuilder = new StringBuilder();
@@ -149,23 +149,23 @@ public class JackTokeninzer {
     }
 
     public String keyword() {
-        return tokens.get(tokenPointer);
+        return token;
     }
 
     public Character symbol() {
-        return tokens.get(tokenPointer).charAt(0);
+        return token.charAt(0);
     }
 
     public String identifier() {
-        return tokens.get(tokenPointer);
+        return token;
     }
 
     public int intVal() {
-        return Integer.parseInt(tokens.get(tokenPointer));
+        return Integer.parseInt(token);
     }
 
     public String stringVal() {
-        return tokens.get(tokenPointer);
+        return token;
     }
 
     private boolean checkIfInteger(String token) { // extra method

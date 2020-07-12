@@ -22,15 +22,16 @@ public class JackAnalyzer {
         File file;
         try {
             file = new File(inputPath);
+            String outputFilePath = "";
             /* 디렉토리 내 java 파일 모두 읽음 */
             if (file.isDirectory()) {
                 System.out.println("==the input path is a directory");
                 String[] fileList = file.list();
                 for (String eachFile : fileList) {
                     if (eachFile.contains(".jack")) {
-                        System.out.println("sensed file : " + eachFile);
                         String inputFilePath = inputPath + "\\" + eachFile;
-                        String outputFilePath = inputPath + "\\(JackTokenized)" + eachFile;
+                        String[] splitedFileName = eachFile.split(".jack");
+                        outputFilePath = inputPath + "\\" + splitedFileName[0] + "(JackTokenized).xml";
                         File inputFile = new File(inputFilePath);
                         File outputFile = new File(outputFilePath);
                         CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
@@ -39,9 +40,10 @@ public class JackAnalyzer {
             } else {
                 /* 지정 파일만 읽음*/
                 System.out.println("==the input path is a file");
-                String inputFilePath = inputPath;
-                String outputFilePath = inputPath + "(JackTokenized)";
-                File inputFile = new File(inputFilePath);
+                String[] splitedPath = inputPath.split(".jack");
+                outputFilePath += splitedPath[0] + "(JackTokenized).xml";
+                System.out.println("outputFilePath " + outputFilePath);
+                File inputFile = new File(inputPath);
                 File outputFile = new File(outputFilePath);
                 CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
             }
