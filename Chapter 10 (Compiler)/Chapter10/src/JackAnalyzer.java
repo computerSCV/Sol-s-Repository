@@ -9,20 +9,28 @@ public class JackAnalyzer {
 //        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\SquareGame.jack";
 //        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Square.jack";
 //        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack";/
-        /* 전체 디렉토리 분석일 떄 */
-        String directoryPath = args[0];
-        System.out.println("directoryPath : " + directoryPath);
+
+        /* 입력값이 없을 때 / 있을 때로 나눔 */
+        String inputPath = "";
+        if (args.length == 0) {
+            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack"; // main을 읽음
+            System.out.println("arg[] 입력값 없음");
+        } else {
+            inputPath = args[0];
+            System.out.println("arg[] 입력값 있음");
+        }
         File file;
         try {
-            file = new File(directoryPath);
+            file = new File(inputPath);
             /* 디렉토리 내 java 파일 모두 읽음 */
             if (file.isDirectory()) {
+                System.out.println("==the input path is a directory");
                 String[] fileList = file.list();
                 for (String eachFile : fileList) {
                     if (eachFile.contains(".jack")) {
                         System.out.println("sensed file : " + eachFile);
-                        String inputFilePath = directoryPath + "\\" + eachFile;
-                        String outputFilePath = directoryPath + "\\(JackTokenized)" + eachFile;
+                        String inputFilePath = inputPath + "\\" + eachFile;
+                        String outputFilePath = inputPath + "\\(JackTokenized)" + eachFile;
                         File inputFile = new File(inputFilePath);
                         File outputFile = new File(outputFilePath);
                         CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
@@ -30,6 +38,12 @@ public class JackAnalyzer {
                 }
             } else {
                 /* 지정 파일만 읽음*/
+                System.out.println("==the input path is a file");
+                String inputFilePath = inputPath;
+                String outputFilePath = inputPath + "(JackTokenized)";
+                File inputFile = new File(inputFilePath);
+                File outputFile = new File(outputFilePath);
+                CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
             }
         } catch (Exception e) {
             e.printStackTrace();

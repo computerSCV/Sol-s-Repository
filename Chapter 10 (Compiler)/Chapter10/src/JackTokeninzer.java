@@ -50,7 +50,7 @@ public class JackTokeninzer {
                 }
                 currentLine = real;
                 lineList.add(currentLine.trim());
-                System.out.println(currentLine.trim());
+//                System.out.println(currentLine.trim());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,9 +63,8 @@ public class JackTokeninzer {
             }
         }
         getToken();
-//        for (String eachToken : tokens) {
-//            System.out.println(eachToken);
-//        }
+        System.out.println("======토큰 리스트==");
+        System.out.println(tokens);
     }
 
     private void getToken() { // customized method
@@ -80,15 +79,37 @@ public class JackTokeninzer {
                     stringBuilder.append(target);
                 } else {
                     if (stringBuilder.length() > 0) {
-                        tokens.add(stringBuilder.toString());
+                        token = stringBuilder.toString();
+                        addToken();
                     }
                     if (target != ' ') {
-                        tokens.add("" + target);
+                        token = stringBuilder.toString();
+                        addToken();
                     }
                     stringBuilder = new StringBuilder();
                 }
                 charPointer++;
             }
+        }
+    }
+
+    private void addToken() {
+        switch (tokenType()) {
+            case "keyword":
+                tokens.add("<" + tokenType() + "> " + keyword() + " </" + tokenType() + ">");
+                break;
+            case "symbol":
+                tokens.add("<" + tokenType() + "> " + symbol() + " </" + tokenType() + ">");
+                break;
+            case "int_const":
+                tokens.add("<" + tokenType() + "> " + intVal() + " </" + tokenType() + ">");
+                break;
+            case "string_const":
+                tokens.add("<" + tokenType() + "> " + stringVal() + " </" + tokenType() + ">");
+                break;
+            default:
+                tokens.add("<" + tokenType() + "> " + identifier() + " </" + tokenType() + ">");
+                break;
         }
     }
 
