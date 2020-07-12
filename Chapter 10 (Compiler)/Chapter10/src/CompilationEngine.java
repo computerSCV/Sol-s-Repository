@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/* className, subroutineName, varName, op, unaryOp, KeywordConstant 등 전부 <> 달아야 함*/
+
 public class CompilationEngine {
     FileWriter fileWriter = null;
     JackTokeninzer jackTokeninzer;
@@ -14,9 +16,7 @@ public class CompilationEngine {
         jackTokeninzer = new JackTokeninzer(inputFile);
         try {
             fileWriter = new FileWriter(outputFile);
-            fileWriter.append("<tokens>\n");
             compileClass();
-            fileWriter.append("</tokens>\n");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -28,54 +28,44 @@ public class CompilationEngine {
         }
     }
 
-    private String makeTerminalLine() { // extra method : 토큰이 단말일 경우 <타입> terminal </타입>을 반환
-        /* 여기서 return값이 tokenType에 따라 jackTokenizer의 keyword, symbol, identifier, intVal, stringVal 중 하나가 되어야 함. */
+    private String makeTerminalLine() { // extra method
         jackTokeninzer.advance();
-        String terminal = "";
-        String tokenType = jackTokeninzer.tokenType();
-        switch (tokenType) {
-            case "keyword":
-                terminal = jackTokeninzer.keyword();
-                break;
-            case "symbol":
-                terminal = "" + jackTokeninzer.symbol();
-                break;
-            case "int_const":
-                terminal = "" + jackTokeninzer.intVal();
-                break;
-            case "string_const":
-                terminal = "" + jackTokeninzer.stringVal();
-                break;
-            default:
-                terminal = jackTokeninzer.identifier();
-                break;
-        }
-        nextToken = jackTokeninzer.nextToken;
+        String token = jackTokeninzer.token;
+        String[] splitedToken = jackTokeninzer.token.split(" ");
+        String tokenInTheMiddle = splitedToken[1];
+
+        /* nextToken 갱신 */
+        String[] splitedNextToken = jackTokeninzer.nextToken.split(" ");
+        nextToken = splitedNextToken[1];
+
         /* "<, >, " , &" 네 가지 특수기호는 각각 바꿔서 출력 */
-        switch (terminal) {
+        switch (tokenInTheMiddle) {
             case "<":
-                terminal = "&lt";
+                tokenInTheMiddle = "&lt";
                 break;
             case ">":
-                terminal = "&gt";
+                tokenInTheMiddle = "&gt";
                 break;
             case "\"":
-                terminal = "&quot";
+                tokenInTheMiddle = "&quot";
                 break;
             case "&":
-                terminal = "&amp";
+                tokenInTheMiddle = "&amp";
                 break;
         }
-        System.out.println("makeXml : " + "<" + tokenType + ">" + terminal + "</" + tokenType + ">");
-        return "<" + tokenType + "> " + terminal + " </" + tokenType + ">\n";
+        token = splitedToken[0] + tokenInTheMiddle + splitedToken[2];
+        System.out.println("makeXml : " + token);
+        return token + "\n";
     }
 
     public void compileClass() {
         System.out.println("<-- 컴파일 클래스 루틴 -->");
         /* "class" className "{" classVarDec* subroutineDec* "}" */
         try {
+            fileWriter.append("<class>\n");
             fileWriter.append(makeTerminalLine()); // class
             fileWriter.append(makeTerminalLine()); // className -> identifier
+            fileWriter.append("<subroutineBody>"); // <subroutineBody>
             fileWriter.append(makeTerminalLine()); // "{"
             while (nextToken.equals("field") || nextToken.equals("static")) {
                 compileClassVarDec();
@@ -84,6 +74,8 @@ public class CompilationEngine {
                 compileSubroutine();
             }
             fileWriter.append(makeTerminalLine()); // "}"
+            fileWriter.append("</subroutineBody>");
+            fileWriter.append("</class>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,6 +85,7 @@ public class CompilationEngine {
         System.out.println("<-- compileClassVarDec() -->");
         /* ("static" | "field") type varName ("," varName)* ";" */
         try {
+            fileWriter.append("<classVarDec>\n");
             fileWriter.append(makeTerminalLine()); // ("static" | "field")
             fileWriter.append(makeTerminalLine()); // type - "int" | "char" | "boolean" | className
             fileWriter.append(makeTerminalLine()); // varName (identifier)
@@ -101,6 +94,7 @@ public class CompilationEngine {
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
             }
             fileWriter.append(makeTerminalLine()); // ";"
+            fileWriter.append("</classVarDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,6 +104,7 @@ public class CompilationEngine {
         /* ("constructor" | "function" | "method") ("void" | type) subroutineName "(" parameterList ")" subroutineBody */
         System.out.println("<-- compileSubroutine() -->");
         try {
+            fileWriter.append("<subroutineDec>\n");
             fileWriter.append(makeTerminalLine()); // ("constructor" | "function" | "method")
             fileWriter.append(makeTerminalLine()); // "void" || type - "int" | "char" | "boolean" | className
             fileWriter.append(makeTerminalLine()); // subroutineName (identifier)
@@ -123,6 +118,7 @@ public class CompilationEngine {
             }
             compileStatements();
             fileWriter.append(makeTerminalLine()); // "}"
+            fileWriter.append("</subroutineDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -131,6 +127,7 @@ public class CompilationEngine {
     public void compileParameterList() {
         System.out.println("<-- compileParameterList() -->");
         try {
+            fileWriter.append("<parameterList>\n");
             if (!nextToken.equals(")")) {
                 fileWriter.append(makeTerminalLine()); // type
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
@@ -140,6 +137,7 @@ public class CompilationEngine {
                     fileWriter.append(makeTerminalLine()); // varName (identifier)
                 }
             }
+            fileWriter.append("</parameterList>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -148,6 +146,7 @@ public class CompilationEngine {
     public void compileVarDec() {
         System.out.println("<-- compileVarDec() -->");
         try {
+            fileWriter.append("<varDec>\n");
             fileWriter.append(makeTerminalLine()); // "var"
             fileWriter.append(makeTerminalLine()); // type
             fileWriter.append(makeTerminalLine()); // varName (identifier)
@@ -156,6 +155,7 @@ public class CompilationEngine {
                 fileWriter.append(makeTerminalLine()); // varName (identifier)
             }
             fileWriter.append(makeTerminalLine()); // ";"
+            fileWriter.append("</varDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -168,6 +168,7 @@ public class CompilationEngine {
         List<String> inputList = Arrays.asList(statements);
         setOfStatements.addAll(inputList);
         try {
+            fileWriter.append("<statement>\n");
             while (setOfStatements.contains(nextToken)) {
                 switch (nextToken) {
                     case "let":
@@ -187,6 +188,7 @@ public class CompilationEngine {
                         break;
                 }
             }
+            fileWriter.append("</statement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -195,6 +197,7 @@ public class CompilationEngine {
     private void subroutineCall() {
         /* subroutineCall*/
         try {
+            fileWriter.append("<subroutineCall>\n");
             fileWriter.append(makeTerminalLine());
             if (nextToken.equals(".")) {
                 fileWriter.append(makeTerminalLine());
@@ -204,6 +207,7 @@ public class CompilationEngine {
             compileExpressionList();
             fileWriter.append(makeTerminalLine());
             /* subroutineCall*/
+            fileWriter.append("</subroutineCall>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -212,9 +216,11 @@ public class CompilationEngine {
     public void compileDo() {
         System.out.println("<-- compileDo() -->");
         try {
+            fileWriter.append("<doStatement>\n");
             fileWriter.append(makeTerminalLine()); // "do"
             subroutineCall();
             fileWriter.append(makeTerminalLine()); // ";"
+            fileWriter.append("</doStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -223,6 +229,7 @@ public class CompilationEngine {
     public void compileLet() {
         System.out.println("<-- compileLet() -->");
         try {
+            fileWriter.append("<letStatement>\n");
             fileWriter.append(makeTerminalLine()); // "let"
             fileWriter.append(makeTerminalLine()); // varName
             if (nextToken.equals("[")) {
@@ -233,6 +240,7 @@ public class CompilationEngine {
             fileWriter.append(makeTerminalLine()); // "="
             compileExpression();
             fileWriter.append(makeTerminalLine()); // ";"
+            fileWriter.append("</letStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -241,6 +249,7 @@ public class CompilationEngine {
     public void compileWhile() {
         System.out.println("<-- compileWhile() -->");
         try {
+            fileWriter.append("<whileStatement>\n");
             fileWriter.append(makeTerminalLine()); // "while"
             fileWriter.append(makeTerminalLine()); // "("
             compileExpression();
@@ -248,6 +257,7 @@ public class CompilationEngine {
             fileWriter.append(makeTerminalLine()); // "{"
             compileStatements();
             fileWriter.append(makeTerminalLine()); // "}"
+            fileWriter.append("</whileStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -256,11 +266,13 @@ public class CompilationEngine {
     public void compileReturn() {
         System.out.println("<-- compileReturn() -->");
         try {
+            fileWriter.append("<returnStatement>\n");
             fileWriter.append(makeTerminalLine()); // "return"
             if (!nextToken.equals(";")) {
                 compileExpression();
             }
             fileWriter.append(makeTerminalLine()); // ";"
+            fileWriter.append("</returnStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -269,6 +281,7 @@ public class CompilationEngine {
     public void compileIf() {
         System.out.println("<-- compileIf() -->");
         try {
+            fileWriter.append("<ifStatement>\n");
             fileWriter.append(makeTerminalLine()); // "if"
             fileWriter.append(makeTerminalLine()); // "("
             compileExpression();
@@ -282,6 +295,7 @@ public class CompilationEngine {
                 compileStatements();
                 fileWriter.append(makeTerminalLine()); // "}"
             }
+            fileWriter.append("</ifStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -293,12 +307,14 @@ public class CompilationEngine {
         String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
         opSet.addAll(Arrays.asList(opArr));
         try {
+            fileWriter.append("<expression>\n");
             System.out.println("compileTerm으로 ----->");
             compileTerm(); // term
             while (opSet.contains(nextToken)) {
                 fileWriter.append(makeTerminalLine()); // "op"
                 compileTerm(); // term
             }
+            fileWriter.append("</expression>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -310,6 +326,7 @@ public class CompilationEngine {
             jackTokeninzer.advance();
             String tokenType = jackTokeninzer.tokenType();
             jackTokeninzer.pointerBackward();
+            fileWriter.append("<term>\n");
             if (tokenType.equals("identifier")) {
                 switch (nextToken) {
                     case "[": // varName "[" expression "]"
@@ -337,6 +354,7 @@ public class CompilationEngine {
             } else {
                 fileWriter.append(makeTerminalLine());
             }
+            fileWriter.append("</term>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -345,12 +363,14 @@ public class CompilationEngine {
     public void compileExpressionList() {
         System.out.println("<-- compileExpressionList() -->");
         try {
+            fileWriter.append("<expressionList>\n");
             if (!nextToken.equals(")")) {
                 compileExpression();
                 while (nextToken.equals(",")) {
                     compileExpression();
                 }
             }
+            fileWriter.append("</expressionList>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
