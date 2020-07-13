@@ -19,22 +19,27 @@ public class JackAnalyzer {
             inputPath = args[0];
             System.out.println("arg[] 입력값 있음");
         }
-        File file;
+        File[] returnFiles = setInputAndOutputFile(inputPath);
+        CompilationEngine compilationEngine = new CompilationEngine(returnFiles[0], returnFiles[1]);
+    }
+
+    public static File[] setInputAndOutputFile(String inputPath) {
+        File[] returnFiles = new File[2];
+        File inputFile;
         try {
-            file = new File(inputPath);
+            inputFile = new File(inputPath);
             String outputFilePath = "";
             /* 디렉토리 내 java 파일 모두 읽음 */
-            if (file.isDirectory()) {
+            if (inputFile.isDirectory()) {
                 System.out.println("==the input path is a directory");
-                String[] fileList = file.list();
+                String[] fileList = inputFile.list();
                 for (String eachFile : fileList) {
                     if (eachFile.contains(".jack")) {
-                        String inputFilePath = inputPath + "\\" + eachFile;
+                        String eachInputFilePath = inputPath + "\\" + eachFile;
                         String[] splitedFileName = eachFile.split(".jack");
                         outputFilePath = inputPath + "\\" + splitedFileName[0] + "(JackTokenized).xml";
-                        File inputFile = new File(inputFilePath);
-                        File outputFile = new File(outputFilePath);
-                        CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
+                        returnFiles[0] = new File(eachInputFilePath);
+                        returnFiles[1] = new File(outputFilePath);
                     }
                 }
             } else {
@@ -43,12 +48,14 @@ public class JackAnalyzer {
                 String[] splitedPath = inputPath.split(".jack");
                 outputFilePath += splitedPath[0] + "(JackTokenized).xml";
                 System.out.println("outputFilePath " + outputFilePath);
-                File inputFile = new File(inputPath);
-                File outputFile = new File(outputFilePath);
-                CompilationEngine compilationEngine = new CompilationEngine(inputFile, outputFile);
+                returnFiles[0] = new File(inputPath);
+                returnFiles[1] = new File(outputFilePath);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return returnFiles;
     }
 }
+
+
