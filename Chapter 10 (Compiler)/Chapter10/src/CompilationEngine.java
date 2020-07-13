@@ -53,7 +53,7 @@ public class CompilationEngine {
                 tokenInTheMiddle = "&amp";
                 break;
         }
-        token = splitedToken[0] + tokenInTheMiddle + splitedToken[2];
+        token = jackTokeninzer.token;
         System.out.println("makeXml : " + token);
         return token + "\n";
     }
@@ -164,7 +164,7 @@ public class CompilationEngine {
     public void compileStatements() {
         System.out.println("<-- compileStatements() - let, if, while, do, return 중 하나로 이동 -->");
         Set<String> setOfStatements = new HashSet<>();
-        String[] statements = {"let", "if", "while", "do", "return" };
+        String[] statements = {"let", "if", "while", "do", "return"};
         List<String> inputList = Arrays.asList(statements);
         setOfStatements.addAll(inputList);
         try {
@@ -197,16 +197,14 @@ public class CompilationEngine {
     private void subroutineCall() {
         /* subroutineCall*/
         try {
-            fileWriter.append("<subroutineCall>\n");
+            fileWriter.append(makeTerminalLine()); // className | varName or SubroutineName
             if (nextToken.equals(".")) {
-                fileWriter.append(makeTerminalLine());
-                fileWriter.append(makeTerminalLine());
+                fileWriter.append(makeTerminalLine()); // '.'
+                fileWriter.append(makeTerminalLine()); // subroutineName
             }
-            fileWriter.append(makeTerminalLine());
+            fileWriter.append(makeTerminalLine()); // (
             compileExpressionList();
-            fileWriter.append(makeTerminalLine());
-            /* subroutineCall*/
-            fileWriter.append("</subroutineCall>\n");
+            fileWriter.append(makeTerminalLine()); // )
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -303,7 +301,7 @@ public class CompilationEngine {
     public void compileExpression() {
         System.out.println("<-- compileExpression() -->");
         Set<String> opSet = new HashSet<>();
-        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~" };
+        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
         opSet.addAll(Arrays.asList(opArr));
         try {
             fileWriter.append("<expression>\n");
