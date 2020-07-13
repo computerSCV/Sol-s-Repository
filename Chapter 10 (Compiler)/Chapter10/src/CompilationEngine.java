@@ -64,8 +64,7 @@ public class CompilationEngine {
         try {
             fileWriter.append("<class>\n");
             fileWriter.append(makeTerminalLine()); // class
-            fileWriter.append(makeTerminalLine()); // className -> identifier
-            fileWriter.append("<subroutineBody>"); // <subroutineBody>
+            fileWriter.append(makeTerminalLine()); // className
             fileWriter.append(makeTerminalLine()); // "{"
             while (nextToken.equals("field") || nextToken.equals("static")) {
                 compileClassVarDec();
@@ -74,7 +73,6 @@ public class CompilationEngine {
                 compileSubroutine();
             }
             fileWriter.append(makeTerminalLine()); // "}"
-            fileWriter.append("</subroutineBody>");
             fileWriter.append("</class>\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,12 +110,14 @@ public class CompilationEngine {
             compileParameterList();
             fileWriter.append(makeTerminalLine()); // ")"
             /* subroutineBody */
+            fileWriter.append("<subroutineBody>\n");
             fileWriter.append(makeTerminalLine()); // "{"
             while (nextToken.equals("var")) {
                 compileVarDec();
             }
             compileStatements();
             fileWriter.append(makeTerminalLine()); // "}"
+            fileWriter.append("</subroutineBody>\n");
             fileWriter.append("</subroutineDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,11 +164,11 @@ public class CompilationEngine {
     public void compileStatements() {
         System.out.println("<-- compileStatements() - let, if, while, do, return 중 하나로 이동 -->");
         Set<String> setOfStatements = new HashSet<>();
-        String[] statements = {"let", "if", "while", "do", "return"};
+        String[] statements = {"let", "if", "while", "do", "return" };
         List<String> inputList = Arrays.asList(statements);
         setOfStatements.addAll(inputList);
         try {
-            fileWriter.append("<statement>\n");
+            fileWriter.append("<statements>\n");
             while (setOfStatements.contains(nextToken)) {
                 switch (nextToken) {
                     case "let":
@@ -188,7 +188,7 @@ public class CompilationEngine {
                         break;
                 }
             }
-            fileWriter.append("</statement>\n");
+            fileWriter.append("</statements>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +198,6 @@ public class CompilationEngine {
         /* subroutineCall*/
         try {
             fileWriter.append("<subroutineCall>\n");
-            fileWriter.append(makeTerminalLine());
             if (nextToken.equals(".")) {
                 fileWriter.append(makeTerminalLine());
                 fileWriter.append(makeTerminalLine());
@@ -304,7 +303,7 @@ public class CompilationEngine {
     public void compileExpression() {
         System.out.println("<-- compileExpression() -->");
         Set<String> opSet = new HashSet<>();
-        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
+        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~" };
         opSet.addAll(Arrays.asList(opArr));
         try {
             fileWriter.append("<expression>\n");
