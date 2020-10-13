@@ -36,19 +36,19 @@ public class JackTokeninzer {
             scanner = new Scanner(fileReader);
             while (scanner.hasNextLine()) {
                 currentLine = scanner.nextLine().trim();
-                if (currentLine.length() <= 0 || currentLine.charAt(0) == '/') {
+                if (currentLine.length() <= 0 || currentLine.charAt(0) == '/' || currentLine.charAt(0) == '*') {
                     continue;
                 }
                 char[] charList = currentLine.toCharArray();
-                String real = "";
+                String lineWithoutSpecialSymbols = "";
                 for (char each : charList) {
                     if (each != '/') {
-                        real += each;
+                        lineWithoutSpecialSymbols += each;
                     } else {
                         break;
                     }
                 }
-                currentLine = real;
+                currentLine = lineWithoutSpecialSymbols;
                 lineList.add(currentLine.trim());
 //                System.out.println(currentLine.trim());
             }
@@ -64,7 +64,9 @@ public class JackTokeninzer {
         }
         getToken();
         System.out.println("======토큰 리스트==");
-        System.out.println(tokens);
+        for (String element : tokens) {
+            System.out.println(element);
+        }
     }
 
     private void getToken() { // customized method
@@ -75,14 +77,24 @@ public class JackTokeninzer {
             while (charPointer < eachLine.length()) {
                 char target = eachLine.charAt(charPointer);
                 // target => " 일 때 String 문자열이므로 다음 " 까지 통째로 토큰화 하도록 수정
-                if ((target >= 97 && target <= 122) || (target >= 65 && target <= 90)) {
+                if ((target >= 'A' && target <= 'Z') || (target >= 'a' && target <= 'z') || // 문자이거나
+                        (target >= 48 && target <= 58)) { // 숫자이거나
                     stringBuilder.append(target);
                 } else {
                     if (stringBuilder.length() > 0) {
                         token = stringBuilder.toString();
                         addToken();
                     }
-                    if (target != ' ') {
+                    if (target == '"') { // string token 만들기
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(eachLine.charAt(charPointer++));
+                        while (eachLine.charAt(charPointer) != '"') {
+                            sb.append("" + eachLine.charAt(charPointer));
+                            charPointer++;
+                        }
+                        token = sb.toString().trim();
+                        addToken();
+                    } else if (target != ' ') {
                         token = "" + target;
                         addToken();
                     }
@@ -126,8 +138,6 @@ public class JackTokeninzer {
             token = tokens.get(tokenPointer);
             if (tokenPointer < tokens.size() - 1) {
                 nextToken = tokens.get(tokenPointer + 1);
-            } else {
-
             }
         }
     }
@@ -165,7 +175,7 @@ public class JackTokeninzer {
     }
 
     public String stringVal() {
-        return token;
+        return token.substring(1); // 맨 앞 '"'를 삭제해야 하므로 substring하여 반환
     }
 
     private boolean checkIfInteger(String token) { // extra method

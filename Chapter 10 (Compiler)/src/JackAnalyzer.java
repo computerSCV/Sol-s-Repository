@@ -13,7 +13,8 @@ public class JackAnalyzer {
         /* 입력값이 없을 때 / 있을 때로 나눔 */
         String inputPath = "";
         if (args.length == 0) {
-            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack"; // main을 읽음
+//            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\Square"; // Square directory 를 읽음
+            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ArrayTest"; // ArrayTest directory 를 읽음
             System.out.println("arg[] 입력값 없음");
         } else {
             inputPath = args[0];

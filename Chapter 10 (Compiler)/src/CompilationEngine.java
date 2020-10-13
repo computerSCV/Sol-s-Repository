@@ -30,7 +30,7 @@ public class CompilationEngine {
 
     private String makeTerminalLine() { // extra method
         jackTokeninzer.advance();
-        String token = jackTokeninzer.token;
+        String token;
         String[] splitedToken = jackTokeninzer.token.split(" ");
         String tokenInTheMiddle = splitedToken[1];
 

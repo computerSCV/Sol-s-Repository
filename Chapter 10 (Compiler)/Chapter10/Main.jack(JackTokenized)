@@ -1,6 +1,0 @@
-<tokens>
-<identifier> <keyword> class </keyword> </identifier>
-<identifier> <identifier> Main </identifier> </identifier>
-<identifier> <symbol> { </symbol> </identifier>
-<identifier> <keyword> static </keyword> </identifier>
-</tokens>
