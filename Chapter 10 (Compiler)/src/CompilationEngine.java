@@ -11,9 +11,11 @@ public class CompilationEngine {
     FileWriter fileWriter = null;
     JackTokeninzer jackTokeninzer;
     String nextToken;
+    StringBuilder space_sb;
 
     public CompilationEngine(File inputFile, File outputFile) {
         jackTokeninzer = new JackTokeninzer(inputFile);
+        space_sb = new StringBuilder();
         try {
             fileWriter = new FileWriter(outputFile);
             compileClass();
@@ -31,12 +33,12 @@ public class CompilationEngine {
     private String makeTerminalLine() { // extra method
         jackTokeninzer.advance();
         String token;
-        String[] splitedToken = jackTokeninzer.token.split(" ");
-        String tokenInTheMiddle = splitedToken[1];
+        String[] splitToken = jackTokeninzer.token.split(" ");
+        String tokenInTheMiddle = splitToken[1];
 
         /* nextToken 갱신 */
-        String[] splitedNextToken = jackTokeninzer.nextToken.split(" ");
-        nextToken = splitedNextToken[1];
+        String[] splitNextToken = jackTokeninzer.nextToken.split(" ");
+        nextToken = splitNextToken[1];
 
         /* "<, >, " , &" 네 가지 특수기호는 각각 바꿔서 출력 */
         switch (tokenInTheMiddle) {
@@ -62,18 +64,20 @@ public class CompilationEngine {
         System.out.println("<-- 컴파일 클래스 루틴 -->");
         /* "class" className "{" classVarDec* subroutineDec* "}" */
         try {
-            fileWriter.append("<class>\n");
-            fileWriter.append(makeTerminalLine()); // class
-            fileWriter.append(makeTerminalLine()); // className
-            fileWriter.append(makeTerminalLine()); // "{"
+            fileWriter.append(space_sb.toString()).append("<class>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // class
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // className
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "{"
             while (nextToken.equals("field") || nextToken.equals("static")) {
                 compileClassVarDec();
             }
             while (nextToken.equals("constructor") || nextToken.equals("function") || nextToken.equals("method")) {
                 compileSubroutine();
             }
-            fileWriter.append(makeTerminalLine()); // "}"
-            fileWriter.append("</class>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "}"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</class>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,16 +87,18 @@ public class CompilationEngine {
         System.out.println("<-- compileClassVarDec() -->");
         /* ("static" | "field") type varName ("," varName)* ";" */
         try {
-            fileWriter.append("<classVarDec>\n");
-            fileWriter.append(makeTerminalLine()); // ("static" | "field")
-            fileWriter.append(makeTerminalLine()); // type - "int" | "char" | "boolean" | className
-            fileWriter.append(makeTerminalLine()); // varName (identifier)
+            fileWriter.append(space_sb.toString()).append("<classVarDec>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ("static" | "field")
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // type - "int" | "char" | "boolean" | className
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
             while (nextToken.equals(",")) {
-                fileWriter.append(makeTerminalLine()); // ","
-                fileWriter.append(makeTerminalLine()); // varName (identifier)
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ","
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
             }
-            fileWriter.append(makeTerminalLine()); // ";"
-            fileWriter.append("</classVarDec>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ";"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</classVarDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,23 +108,27 @@ public class CompilationEngine {
         /* ("constructor" | "function" | "method") ("void" | type) subroutineName "(" parameterList ")" subroutineBody */
         System.out.println("<-- compileSubroutine() -->");
         try {
-            fileWriter.append("<subroutineDec>\n");
-            fileWriter.append(makeTerminalLine()); // ("constructor" | "function" | "method")
-            fileWriter.append(makeTerminalLine()); // "void" || type - "int" | "char" | "boolean" | className
-            fileWriter.append(makeTerminalLine()); // subroutineName (identifier)
-            fileWriter.append(makeTerminalLine()); // "("
+            fileWriter.append(space_sb.toString()).append("<subroutineDec>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ("constructor" | "function" | "method")
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "void" || type - "int" | "char" | "boolean" | className
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // subroutineName (identifier)
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "("
             compileParameterList();
-            fileWriter.append(makeTerminalLine()); // ")"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ")"
             /* subroutineBody */
-            fileWriter.append("<subroutineBody>\n");
-            fileWriter.append(makeTerminalLine()); // "{"
+            fileWriter.append(space_sb.toString()).append("<subroutineBody>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "{"
             while (nextToken.equals("var")) {
                 compileVarDec();
             }
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // "}"
-            fileWriter.append("</subroutineBody>\n");
-            fileWriter.append("</subroutineDec>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "}"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</subroutineBody>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</subroutineDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,17 +137,19 @@ public class CompilationEngine {
     public void compileParameterList() {
         System.out.println("<-- compileParameterList() -->");
         try {
-            fileWriter.append("<parameterList>\n");
+            fileWriter.append(space_sb.toString()).append("<parameterList>\n");
+            space_sb.append(' ');
             if (!nextToken.equals(")")) {
-                fileWriter.append(makeTerminalLine()); // type
-                fileWriter.append(makeTerminalLine()); // varName (identifier)
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // type
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
                 while (nextToken.equals(",")) {
-                    fileWriter.append(makeTerminalLine()); // ","
-                    fileWriter.append(makeTerminalLine()); // type
-                    fileWriter.append(makeTerminalLine()); // varName (identifier)
+                    fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ","
+                    fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // type
+                    fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
                 }
             }
-            fileWriter.append("</parameterList>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</parameterList>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,16 +158,18 @@ public class CompilationEngine {
     public void compileVarDec() {
         System.out.println("<-- compileVarDec() -->");
         try {
-            fileWriter.append("<varDec>\n");
-            fileWriter.append(makeTerminalLine()); // "var"
-            fileWriter.append(makeTerminalLine()); // type
-            fileWriter.append(makeTerminalLine()); // varName (identifier)
+            fileWriter.append(space_sb.toString()).append("<varDec>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "var"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // type
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
             while (nextToken.equals(",")) {
-                fileWriter.append(makeTerminalLine()); // ","
-                fileWriter.append(makeTerminalLine()); // varName (identifier)
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ","
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName (identifier)
             }
-            fileWriter.append(makeTerminalLine()); // ";"
-            fileWriter.append("</varDec>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ";"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</varDec>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -168,7 +182,8 @@ public class CompilationEngine {
         List<String> inputList = Arrays.asList(statements);
         setOfStatements.addAll(inputList);
         try {
-            fileWriter.append("<statements>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append("<statements>\n");
             while (setOfStatements.contains(nextToken)) {
                 switch (nextToken) {
                     case "let":
@@ -188,7 +203,8 @@ public class CompilationEngine {
                         break;
                 }
             }
-            fileWriter.append("</statements>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</statements>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -197,14 +213,14 @@ public class CompilationEngine {
     private void subroutineCall() {
         /* subroutineCall*/
         try {
-            fileWriter.append(makeTerminalLine()); // className | varName or SubroutineName
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // className | varName or SubroutineName
             if (nextToken.equals(".")) {
-                fileWriter.append(makeTerminalLine()); // '.'
-                fileWriter.append(makeTerminalLine()); // subroutineName
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // '.'
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // subroutineName
             }
-            fileWriter.append(makeTerminalLine()); // (
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // (
             compileExpressionList();
-            fileWriter.append(makeTerminalLine()); // )
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // )
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,11 +229,13 @@ public class CompilationEngine {
     public void compileDo() {
         System.out.println("<-- compileDo() -->");
         try {
-            fileWriter.append("<doStatement>\n");
-            fileWriter.append(makeTerminalLine()); // "do"
+            fileWriter.append(space_sb.toString()).append("<doStatement>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "do"
             subroutineCall();
-            fileWriter.append(makeTerminalLine()); // ";"
-            fileWriter.append("</doStatement>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ";"
+            space_sb.append(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</doStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -226,18 +244,20 @@ public class CompilationEngine {
     public void compileLet() {
         System.out.println("<-- compileLet() -->");
         try {
-            fileWriter.append("<letStatement>\n");
-            fileWriter.append(makeTerminalLine()); // "let"
-            fileWriter.append(makeTerminalLine()); // varName
-            if (nextToken.equals("[")) {
-                fileWriter.append(makeTerminalLine()); // "["
-                compileExpression();
-                fileWriter.append(makeTerminalLine()); // "]"
+            fileWriter.append(space_sb.toString()).append("<letStatement>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "let"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName
+            if (nextToken.equals("[")) { // 배열이라면
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "["
+                compileExpressionList();
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "]"
             }
-            fileWriter.append(makeTerminalLine()); // "="
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "="
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ";"
-            fileWriter.append("</letStatement>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ";"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</letStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,15 +266,17 @@ public class CompilationEngine {
     public void compileWhile() {
         System.out.println("<-- compileWhile() -->");
         try {
-            fileWriter.append("<whileStatement>\n");
-            fileWriter.append(makeTerminalLine()); // "while"
-            fileWriter.append(makeTerminalLine()); // "("
+            fileWriter.append(space_sb.toString()).append("<whileStatement>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "while"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "("
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ")"
-            fileWriter.append(makeTerminalLine()); // "{"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ")"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "{"
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // "}"
-            fileWriter.append("</whileStatement>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "}"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</whileStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -263,13 +285,15 @@ public class CompilationEngine {
     public void compileReturn() {
         System.out.println("<-- compileReturn() -->");
         try {
-            fileWriter.append("<returnStatement>\n");
-            fileWriter.append(makeTerminalLine()); // "return"
+            fileWriter.append(space_sb.toString()).append("<returnStatement>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "return"
             if (!nextToken.equals(";")) {
                 compileExpression();
             }
-            fileWriter.append(makeTerminalLine()); // ";"
-            fileWriter.append("</returnStatement>\n");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ";"
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</returnStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -278,21 +302,23 @@ public class CompilationEngine {
     public void compileIf() {
         System.out.println("<-- compileIf() -->");
         try {
-            fileWriter.append("<ifStatement>\n");
-            fileWriter.append(makeTerminalLine()); // "if"
-            fileWriter.append(makeTerminalLine()); // "("
+            fileWriter.append(space_sb.toString()).append("<ifStatement>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "if"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "("
             compileExpression();
-            fileWriter.append(makeTerminalLine()); // ")"
-            fileWriter.append(makeTerminalLine()); // "{"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // ")"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "{"
             compileStatements();
-            fileWriter.append(makeTerminalLine()); // "}"
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "}"
             if (nextToken.equals("else")) {
-                fileWriter.append(makeTerminalLine()); // "else"
-                fileWriter.append(makeTerminalLine()); // "{"
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "else"
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "{"
                 compileStatements();
-                fileWriter.append(makeTerminalLine()); // "}"
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "}"
             }
-            fileWriter.append("</ifStatement>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</ifStatement>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -304,14 +330,16 @@ public class CompilationEngine {
         String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
         opSet.addAll(Arrays.asList(opArr));
         try {
-            fileWriter.append("<expression>\n");
+            fileWriter.append(space_sb.toString()).append("<expression>\n");
+            space_sb.append(' ');
             System.out.println("compileTerm으로 ----->");
             compileTerm(); // term
             while (opSet.contains(nextToken)) {
-                fileWriter.append(makeTerminalLine()); // "op"
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "op"
                 compileTerm(); // term
             }
-            fileWriter.append("</expression>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</expression>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -323,35 +351,37 @@ public class CompilationEngine {
             jackTokeninzer.advance();
             String tokenType = jackTokeninzer.tokenType();
             jackTokeninzer.pointerBackward();
-            fileWriter.append("<term>\n");
+            fileWriter.append(space_sb.toString()).append("<term>\n");
+            space_sb.append(' ');
             if (tokenType.equals("identifier")) {
                 switch (nextToken) {
                     case "[": // varName "[" expression "]"
-                        fileWriter.append(makeTerminalLine());
-                        fileWriter.append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         compileExpression();
-                        fileWriter.append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         break;
                     case ".": // subroutineCall
                         subroutineCall();
                         break;
                     case "(": // "(" expression ")"
-                        fileWriter.append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         compileExpression();
-                        fileWriter.append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         break;
                     default:
-                        fileWriter.append(makeTerminalLine());
+                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         break;
                 }
             } else if (tokenType.equals("symbol")) { // unaryOp term
                 System.out.println("심볼");
-                fileWriter.append(makeTerminalLine());
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                 compileTerm();
             } else {
-                fileWriter.append(makeTerminalLine());
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine());
             }
-            fileWriter.append("</term>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</term>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -360,14 +390,16 @@ public class CompilationEngine {
     public void compileExpressionList() {
         System.out.println("<-- compileExpressionList() -->");
         try {
-            fileWriter.append("<expressionList>\n");
+            space_sb.append(' ');
+            fileWriter.append(space_sb.toString()).append("<expressionList>\n");
             if (!nextToken.equals(")")) {
                 compileExpression();
                 while (nextToken.equals(",")) {
                     compileExpression();
                 }
             }
-            fileWriter.append("</expressionList>\n");
+            space_sb.deleteCharAt(space_sb.length() - 1);
+            fileWriter.append(space_sb.toString()).append("</expressionList>\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
