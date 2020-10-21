@@ -34,27 +34,11 @@ public class CompilationEngine {
         jackTokeninzer.advance();
         String token;
         String[] splitToken = jackTokeninzer.token.split(" ");
-        String tokenInTheMiddle = splitToken[1];
 
         /* nextToken 갱신 */
         String[] splitNextToken = jackTokeninzer.nextToken.split(" ");
         nextToken = splitNextToken[1];
 
-        /* "<, >, " , &" 네 가지 특수기호는 각각 바꿔서 출력 */
-        switch (tokenInTheMiddle) {
-            case "<":
-                tokenInTheMiddle = "&lt";
-                break;
-            case ">":
-                tokenInTheMiddle = "&gt";
-                break;
-            case "\"":
-                tokenInTheMiddle = "&quot";
-                break;
-            case "&":
-                tokenInTheMiddle = "&amp";
-                break;
-        }
         token = jackTokeninzer.token;
         System.out.println("makeXml : " + token);
         return token + "\n";
@@ -250,7 +234,7 @@ public class CompilationEngine {
             fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // varName
             if (nextToken.equals("[")) { // 배열이라면
                 fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "["
-                compileExpressionList();
+                compileExpression();
                 fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "]"
             }
             fileWriter.append(space_sb.toString()).append(makeTerminalLine()); // "="
@@ -327,7 +311,7 @@ public class CompilationEngine {
     public void compileExpression() {
         System.out.println("<-- compileExpression() -->");
         Set<String> opSet = new HashSet<>();
-        String[] opArr = {"+", "-", "*", "/", "&", "|", "<", ">", "=", "-", "~"};
+        String[] opArr = {"+", "-", "*", "/", "&amp;", "|", "&lt;", "&gt;", "=", "-", "~"};
         opSet.addAll(Arrays.asList(opArr));
         try {
             fileWriter.append(space_sb.toString()).append("<expression>\n");
@@ -348,38 +332,34 @@ public class CompilationEngine {
     public void compileTerm() {
         System.out.println("<-- compileTerm() -->");
         try {
-            jackTokeninzer.advance();
-            String tokenType = jackTokeninzer.tokenType();
-            jackTokeninzer.pointerBackward();
             fileWriter.append(space_sb.toString()).append("<term>\n");
             space_sb.append("  ");
+            fileWriter.append(space_sb.toString()).append(makeTerminalLine());
+            String split = jackTokeninzer.token.split(" ")[0];
+            String middleToken = jackTokeninzer.token.split(" ")[1];
+            System.out.println("미들토큰 : " + middleToken);
+            String tokenType = split.substring(1, split.length() - 1);
             if (tokenType.equals("identifier")) {
-                nextToken = jackTokeninzer.nextToken.split(" ")[1];
-                switch (nextToken) {
+                System.out.println("토큰타입 아이덴티파이어 : " + jackTokeninzer.token);
+                switch (jackTokeninzer.nextToken.split(" ")[1]) {
                     case "[": // varName "[" expression "]"
-                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
-                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
-                        compileExpression();
-                        fileWriter.append(space_sb.toString()).append(makeTerminalLine());
-                        break;
-                    case ".": // subroutineCall
-                        subroutineCall();
-                        break;
                     case "(": // "(" expression ")"
                         fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         compileExpression();
                         fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                         break;
-                    default:
+                    case ".": // subroutineCall
                         fileWriter.append(space_sb.toString()).append(makeTerminalLine());
+                        subroutineCall();
                         break;
                 }
-            } else if (tokenType.equals("symbol")) { // unaryOp term
+            } else if (middleToken.equals("(")) {
+                System.out.println("토큰타입 (");
+                compileExpression();
+                fileWriter.append(space_sb.toString()).append(makeTerminalLine());
+            } else if (middleToken.equals("-") || middleToken.equals("~")) { // unaryOp term
                 System.out.println("심볼");
-                fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                 compileTerm();
-            } else {
-                fileWriter.append(space_sb.toString()).append(makeTerminalLine());
             }
             space_sb.deleteCharAt(space_sb.length() - 1).deleteCharAt(space_sb.length() - 1);
             fileWriter.append(space_sb.toString()).append("</term>\n");
@@ -396,6 +376,7 @@ public class CompilationEngine {
             if (!nextToken.equals(")")) {
                 compileExpression();
                 while (nextToken.equals(",")) {
+                    fileWriter.append(space_sb.toString()).append(makeTerminalLine());
                     compileExpression();
                 }
             }

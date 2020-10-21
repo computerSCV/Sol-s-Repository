@@ -42,15 +42,10 @@ public class JackTokeninzer {
                 char[] charList = currentLine.toCharArray();
                 String lineWithoutSpecialSymbols = "";
                 for (char each : charList) {
-                    if (each != '/') {
-                        lineWithoutSpecialSymbols += each;
-                    } else {
-                        break;
-                    }
+                    lineWithoutSpecialSymbols += each;
                 }
                 currentLine = lineWithoutSpecialSymbols;
                 lineList.add(currentLine.trim());
-//                System.out.println(currentLine.trim());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,6 +70,9 @@ public class JackTokeninzer {
             int charPointer = 0;
             StringBuilder stringBuilder = new StringBuilder();
             while (charPointer < eachLine.length()) {
+                if (charPointer < eachLine.length() - 1 && eachLine.charAt(charPointer) == '/' && eachLine.charAt(charPointer + 1) == '/') {
+                    break;
+                }
                 char target = eachLine.charAt(charPointer);
                 // target => " 일 때 String 문자열이므로 다음 " 까지 통째로 토큰화 하도록 수정
                 if ((target >= 'A' && target <= 'Z') || (target >= 'a' && target <= 'z') || // 문자이거나
@@ -89,7 +87,7 @@ public class JackTokeninzer {
                         StringBuilder sb = new StringBuilder();
                         sb.append(eachLine.charAt(charPointer++));
                         while (eachLine.charAt(charPointer) != '"') {
-                            sb.append("" + eachLine.charAt(charPointer));
+                            sb.append(eachLine.charAt(charPointer));
                             charPointer++;
                         }
                         token = sb.toString().trim();
@@ -113,10 +111,10 @@ public class JackTokeninzer {
             case "symbol":
                 tokens.add("<" + tokenType() + "> " + symbol() + " </" + tokenType() + ">");
                 break;
-            case "int_const":
+            case "integerConstant":
                 tokens.add("<" + tokenType() + "> " + intVal() + " </" + tokenType() + ">");
                 break;
-            case "string_const":
+            case "stringConstant":
                 tokens.add("<" + tokenType() + "> " + stringVal() + " </" + tokenType() + ">");
                 break;
             default:
@@ -150,10 +148,10 @@ public class JackTokeninzer {
             return "symbol";
         }
         if (checkIfInteger(token)) {
-            return "int_const";
+            return "integerConstant";
         }
         if (token.charAt(0) == '"') {
-            return "string_const";
+            return "stringConstant";
         }
         return "identifier";
     }
@@ -162,8 +160,19 @@ public class JackTokeninzer {
         return token;
     }
 
-    public Character symbol() {
-        return token.charAt(0);
+    public String symbol() {
+        switch (token.charAt(0)) {
+            case '<':
+                return "&lt;";
+            case '>':
+                return "&gt;";
+            case '"':
+                return "&quot;";
+            case '&':
+                return "&amp;";
+            default:
+                return "" + token.charAt(0);
+        }
     }
 
     public String identifier() {
@@ -185,9 +194,5 @@ public class JackTokeninzer {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    public void pointerBackward() {
-        tokenPointer--;
     }
 }

@@ -8,19 +8,20 @@ public class JackAnalyzer {
         /* file input */
 //        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\SquareGame.jack";
 //        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Square.jack";
-//        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack";/
+//        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack";
+        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\Square\\Square.jack";
 
         /* 입력값이 없을 때 / 있을 때로 나눔 */
         String inputPath = "";
         if (args.length == 0) {
 //            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\Square"; // Square directory 를 읽음
-            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ArrayTest"; // ArrayTest directory 를 읽음
+//            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ArrayTest"; // ArrayTest directory 를 읽음
             System.out.println("arg[] 입력값 없음");
         } else {
             inputPath = args[0];
             System.out.println("arg[] 입력값 있음");
         }
-        File[] returnFiles = setInputAndOutputFile(inputPath);
+        File[] returnFiles = setInputAndOutputFile(inputFilePath);
         CompilationEngine compilationEngine = new CompilationEngine(returnFiles[0], returnFiles[1]);
     }
 
