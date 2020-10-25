@@ -58,10 +58,10 @@ public class JackTokeninzer {
             }
         }
         getToken();
-        System.out.println("======토큰 리스트==");
-        for (String element : tokens) {
-            System.out.println(element);
-        }
+//        System.out.println("======토큰 리스트==");
+//        for (String element : tokens) {
+//            System.out.println(element);
+//        }
     }
 
     private void getToken() { // customized method

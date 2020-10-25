@@ -5,29 +5,22 @@ import java.util.ArrayList;
 
 public class JackAnalyzer {
     public static void main(String[] args) {
-        /* file input */
-//        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\SquareGame.jack";
-//        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Square.jack";
-//        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ExpressionLessSquare\\Main.jack";
-        String inputFilePath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\Square\\Square.jack";
-
-        /* 입력값이 없을 때 / 있을 때로 나눔 */
         String inputPath = "";
         if (args.length == 0) {
 //            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\Square"; // Square directory 를 읽음
-//            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ArrayTest"; // ArrayTest directory 를 읽음
+            inputPath = "P:\\The Elements of Computing Systems\\nand2tetris\\projects\\10\\ArrayTest"; // ArrayTest directory 를 읽음
             System.out.println("arg[] 입력값 없음");
         } else {
             inputPath = args[0];
             System.out.println("arg[] 입력값 있음");
         }
-        File[] returnFiles = setInputAndOutputFile(inputFilePath);
-        CompilationEngine compilationEngine = new CompilationEngine(returnFiles[0], returnFiles[1]);
+        setInputAndOutputFile(inputPath);
     }
 
-    public static File[] setInputAndOutputFile(String inputPath) {
+    public static void setInputAndOutputFile(String inputPath) {
         File[] returnFiles = new File[2];
         File inputFile;
+        CompilationEngine compilationEngine;
         try {
             inputFile = new File(inputPath);
             String outputFilePath = "";
@@ -42,6 +35,7 @@ public class JackAnalyzer {
                         outputFilePath = inputPath + "\\" + splitedFileName[0] + "(JackTokenized).xml";
                         returnFiles[0] = new File(eachInputFilePath);
                         returnFiles[1] = new File(outputFilePath);
+                        compilationEngine = new CompilationEngine(returnFiles[0], returnFiles[1]); // 쓰기
                     }
                 }
             } else {
@@ -52,11 +46,11 @@ public class JackAnalyzer {
                 System.out.println("outputFilePath " + outputFilePath);
                 returnFiles[0] = new File(inputPath);
                 returnFiles[1] = new File(outputFilePath);
+                compilationEngine = new CompilationEngine(returnFiles[0], returnFiles[1]);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return returnFiles;
     }
 }
 
